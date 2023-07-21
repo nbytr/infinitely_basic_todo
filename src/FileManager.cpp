@@ -78,3 +78,4 @@ bool FileManager::deleteList(int listIndex)
     cacheValid = false;
   return r;
 }
+
