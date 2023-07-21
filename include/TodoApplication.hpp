@@ -5,6 +5,7 @@
 #include <memory>
 #include <algorithm>
 #include <sstream>
+#include <iomanip>
 
 #include "FileManager.hpp"
 #include "TodoList.hpp"
@@ -21,6 +22,7 @@ public:
   void printHelpCommand();
   void printLists();
   void printLoadedList();
+  bool createList(const std::string& name);
 
 private:
   bool isRunning;

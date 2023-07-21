@@ -7,6 +7,8 @@
 // Will handle an individual list file
 class TodoList
 {
+public:
+  std::string name;
 };
 
 #endif

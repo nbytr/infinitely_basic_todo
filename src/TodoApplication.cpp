@@ -40,6 +40,18 @@ int TodoApplication::run()
     {
       printLists();
     }
+    else if (firstPart == "create")
+    {
+      std::string listName;
+      if (!(commandParts >> listName))
+      {
+        std::cout << "Invalid use of create command, proper usage: create <list name>\n";
+      } else
+      {
+        if(!createList(listName))
+          std::cout << "Failed to create list, maybe it already exists?\n";
+      }
+    }
     else if (firstPart == "exit")
     {
       isRunning = false;
@@ -55,10 +67,11 @@ int TodoApplication::run()
 
 void TodoApplication::printHelpCommand()
 {
-  std::cout << "\nHELP command output:\n"
-
+  std::cout 
     << "lists - print all the todo lists you have created, along"
     << " with your currently loaded one.\n"
+
+    << "create <list name> - create a list with the specified name\n"
 
     << "load <list name> - load a todo list to read and modify\n"
 
@@ -69,5 +82,29 @@ void TodoApplication::printHelpCommand()
     << "\n";
 }
 
-void TodoApplication::printLists() {}
+void TodoApplication::printLists()
+{
+  auto allTodoLists = fileManager.obtainAllTodoListNames();
+  if (allTodoLists.empty())
+    std::cout << "\nYou have no lists, create one with the create command,"
+      << " type help for more details.\n";
+  else
+  {
+    std::cout << "You have currently got: \nList Index | List Name\n"
+                                        << "-----------+-------------------------------\n";
+    for (auto i = allTodoLists.begin(); i < allTodoLists.end(); ++i)
+    {
+      std::cout << std::setw(10) << (i - allTodoLists.begin()) << " | " << *i << '\n';
+    }
+  }
+
+  if (currentList)
+    std::cout << "\nYou have also currently loaded the " << (*currentList).name << '\n';
+}
+
 void TodoApplication::printLoadedList() {}
+
+bool TodoApplication::createList(const std::string& name)
+{
+  return fileManager.createList(name);
+}

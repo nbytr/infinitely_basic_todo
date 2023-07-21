@@ -5,6 +5,7 @@
 #include <vector>
 #include <filesystem>
 #include <memory>
+#include <fstream>
 
 #include "TodoList.hpp"
 
@@ -20,6 +21,7 @@ public:
 
   std::unique_ptr<TodoList> openTodoList(const std::string& name) const;
 
+  bool createList(const std::string& name) const;
 private:
   // Where user data is stored, set in constructor based on OS.
   std::string dataPath;
