@@ -41,30 +41,40 @@ bool FileManager::doesTodoListExist(const std::string& name) const
   return std::filesystem::exists(dataPath + name + ".lst");
 }
 
-NameList FileManager::obtainAllTodoListNames() const
+NameList& FileManager::obtainAllTodoListNames()
 {
+  if (cacheValid) return cachedTodoListNames;
+
   auto initialFile = std::filesystem::directory_iterator(dataPath);
 
-  std::vector<std::string> fileEntries;
+  NameList fileEntries;
   for (const auto& fileEntry : initialFile)
   {
     if (fileEntry.path().extension() == ".lst")
       fileEntries.push_back(fileEntry.path().stem());
   }
 
-  return fileEntries;
+  cachedTodoListNames = std::move(fileEntries);
+  cacheValid = true;
+
+  return cachedTodoListNames;
 }
 
-bool FileManager::createList(const std::string& name) const
+bool FileManager::createList(const std::string& name)
 {
   if (doesTodoListExist(name)) return false;
 
   std::ofstream f {dataPath + name + ".lst"};
+  if (f)
+    cacheValid = false;
   return bool(f);
 }
 
-bool FileManager::deleteList(int listIndex) const
+bool FileManager::deleteList(int listIndex)
 {
   NameList lst = obtainAllTodoListNames();
-  return std::filesystem::remove(dataPath + lst[listIndex] + ".lst");
+  bool r = std::filesystem::remove(dataPath + lst[listIndex] + ".lst");
+  if (r)
+    cacheValid = false;
+  return r;
 }
