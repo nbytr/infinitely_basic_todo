@@ -23,6 +23,7 @@ public:
   void printLists();
   void printLoadedList();
   bool createList(const std::string& name);
+  bool deleteList(int listIndex);
 
 private:
   bool isRunning;

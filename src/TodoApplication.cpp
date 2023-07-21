@@ -52,6 +52,19 @@ int TodoApplication::run()
           std::cout << "Failed to create list, maybe it already exists?\n";
       }
     }
+    else if (firstPart == "delete")
+    {
+      int listIndex;
+      if (!(commandParts >> listIndex))
+      {
+        std::cout << "Invalid use of delete command, proper usage: delete <list index>\n";
+      }
+      else
+      {
+        if (!deleteList(listIndex))
+          std::cout << "Failed to delete list, maybe it doesn't exist?\n";
+      }
+    }
     else if (firstPart == "exit")
     {
       isRunning = false;
@@ -73,9 +86,11 @@ void TodoApplication::printHelpCommand()
 
     << "create <list name> - create a list with the specified name\n"
 
-    << "load <list name> - load a todo list to read and modify\n"
+    << "load <list index> - load a todo list to read and modify\n"
 
     << "print - output the currently loaded list's items\n"
+
+    << "delete <list index> - delete a list\n"
 
     << "exit - exit the application\n"
 
@@ -84,7 +99,7 @@ void TodoApplication::printHelpCommand()
 
 void TodoApplication::printLists()
 {
-  auto allTodoLists = fileManager.obtainAllTodoListNames();
+  NameList allTodoLists = fileManager.obtainAllTodoListNames();
   if (allTodoLists.empty())
     std::cout << "\nYou have no lists, create one with the create command,"
       << " type help for more details.\n";
@@ -107,4 +122,9 @@ void TodoApplication::printLoadedList() {}
 bool TodoApplication::createList(const std::string& name)
 {
   return fileManager.createList(name);
+}
+
+bool TodoApplication::deleteList(int listIndex)
+{
+  return fileManager.deleteList(listIndex);
 }

@@ -41,7 +41,7 @@ bool FileManager::doesTodoListExist(const std::string& name) const
   return std::filesystem::exists(dataPath + name + ".lst");
 }
 
-std::vector<std::string> FileManager::obtainAllTodoListNames() const
+NameList FileManager::obtainAllTodoListNames() const
 {
   auto initialFile = std::filesystem::directory_iterator(dataPath);
 
@@ -57,8 +57,14 @@ std::vector<std::string> FileManager::obtainAllTodoListNames() const
 
 bool FileManager::createList(const std::string& name) const
 {
-  if (std::filesystem::exists(dataPath + name + ".lst")) return false;
+  if (doesTodoListExist(name)) return false;
 
   std::ofstream f {dataPath + name + ".lst"};
   return bool(f);
+}
+
+bool FileManager::deleteList(int listIndex) const
+{
+  NameList lst = obtainAllTodoListNames();
+  return std::filesystem::remove(dataPath + lst[listIndex] + ".lst");
 }
