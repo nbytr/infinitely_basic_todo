@@ -1,6 +1,8 @@
 #include "FileManager.hpp"
+#include "TodoList.hpp"
 #include <filesystem>
 #include <iterator>
+#include <memory>
 
 FileManager::FileManager()
 {
@@ -41,6 +43,11 @@ bool FileManager::doesTodoListExist(const std::string& name) const
   return std::filesystem::exists(dataPath + name + ".lst");
 }
 
+bool FileManager::doesTodoListExist(int listIndex)
+{
+  return (listIndex >= 0 && listIndex < obtainAllTodoListNames().size());
+}
+
 NameList& FileManager::obtainAllTodoListNames()
 {
   if (cacheValid) return cachedTodoListNames;
@@ -72,6 +79,8 @@ bool FileManager::createList(const std::string& name)
 
 bool FileManager::deleteList(int listIndex)
 {
+  if (!doesTodoListExist(listIndex)) return false;
+
   NameList lst = obtainAllTodoListNames();
   bool r = std::filesystem::remove(dataPath + lst[listIndex] + ".lst");
   if (r)
@@ -79,3 +88,14 @@ bool FileManager::deleteList(int listIndex)
   return r;
 }
 
+std::unique_ptr<TodoList> FileManager::openTodoList(int listIndex)
+{
+  if (!doesTodoListExist(listIndex))
+    return std::unique_ptr<TodoList> {nullptr};
+
+  std::unique_ptr<TodoList> tdList = std::make_unique<TodoList>(
+      dataPath + obtainAllTodoListNames()[listIndex] + ".lst"
+  );
+
+  return tdList;
+}

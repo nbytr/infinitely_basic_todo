@@ -13,10 +13,10 @@
 class TodoApplication
 {
 public:
-  TodoApplication() : isRunning {false} {}
+  TodoApplication() : isRunning {false}, loadedList {nullptr} {}
   int run();
 
-  std::unique_ptr<TodoList> currentList = nullptr;
+  std::unique_ptr<TodoList> loadedList;
 
   // Commands
   void printHelpCommand();

@@ -25,8 +25,6 @@ int TodoApplication::run()
     std::cout << "\nistd > ";
     std::getline(std::cin, command);
 
-    std::transform(command.begin(), command.begin(), command.end(), ::tolower);
-
     commandParts.str(command);
     commandParts.clear();
 
@@ -53,16 +51,17 @@ int TodoApplication::run()
     }
     else if (firstPart == "print")
     {
-      if (currentList)
+      if (loadedList)
         printLoadedList();
       else
        std::cout << "You haven't loaded a list, use the load command to do so\n";
     }
     else if (firstPart == "additem")
     {
-      if (currentList)
+      if (loadedList)
       {
         std::string item;
+        commandParts.ignore(); // ignore the whitespace after additem
         if(!std::getline(commandParts, item))
         {
           std::cout << "Invalid use of the additem command, proper usage: additem <item>\n";
@@ -75,7 +74,7 @@ int TodoApplication::run()
     }
     else if (firstPart == "delitem")
     {
-      if (currentList)
+      if (loadedList)
       {
         int listIndex;
         if (!(commandParts >> listIndex))
@@ -91,6 +90,7 @@ int TodoApplication::run()
     else if (firstPart == "create")
     {
       std::string listName;
+      commandParts.ignore(); // ignore the whitespace after the create
       if (!std::getline(commandParts, listName))
       {
         std::cout << "Invalid use of create command, proper usage: create <list name>\n";
@@ -167,16 +167,36 @@ void TodoApplication::printLists()
     }
   }
 
-  if (currentList)
-    std::cout << "\nYou have also currently loaded the " << (*currentList).name << '\n';
+  if (loadedList)
+    std::cout << "\nYou have also currently loaded the " << (*loadedList).name << '\n';
 }
 
 bool TodoApplication::loadList(int listIndex)
-{ return true; }
+{
+  if (loadedList) loadedList.reset();
+  loadedList = fileManager.openTodoList(listIndex);
+  return bool(loadedList);
+}
+
 void TodoApplication::printLoadedList()
-{}
+{
+  ItemList& itemLst = loadedList->retrieveItems();
+
+  std::cout << "Item Index | TODO Item\n"
+            << "-----------+-----------------------------\n";
+
+  for (auto i = itemLst.begin(); i < itemLst.end(); ++i)
+  {
+    std::cout << std::setw(10) << (i - itemLst.begin()) << " | " << *i << '\n';
+  }
+
+}
 void TodoApplication::addItemToLoadedList(const std::string& item)
-{}
+{
+  if (!loadedList->addItem(item))
+    std::cout << "Failed to add item.\n";
+}
+
 bool TodoApplication::deleteItemFromLoadedList(int listIndex)
 {
   return true;

@@ -20,10 +20,11 @@ public:
 
   bool isFirstLaunch() const;
   bool doesTodoListExist(const std::string& name) const;
+  bool doesTodoListExist(int listIndex);
 
   NameList& obtainAllTodoListNames();
 
-  std::unique_ptr<TodoList> openTodoList(const std::string& name) const;
+  std::unique_ptr<TodoList> openTodoList(int listIndex);
 
   bool createList(const std::string& name);
   bool deleteList(int listIndex);
