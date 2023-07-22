@@ -24,7 +24,7 @@ public:
   bool loadList(int listIndex);
   void printLoadedList();
   void addItemToLoadedList(const std::string& item);
-  bool deleteItemFromLoadedList(int listIndex);
+  void deleteItemFromLoadedList(int listIndex);
   bool createList(const std::string& name);
   bool deleteList(int listIndex);
 

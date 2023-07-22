@@ -81,8 +81,7 @@ int TodoApplication::run()
         {
           std::cout << "Invalid use of delitem command, proper usage: delitem <list index>\n";
         }
-        if (!deleteItemFromLoadedList(listIndex))
-          std::cout << "Failed to delete item, maybe it doesn't exist?\n";
+        deleteItemFromLoadedList(listIndex);
       }
       else
         std::cout << "You haven't loaded a list, use the load command to do so\n";
@@ -168,7 +167,7 @@ void TodoApplication::printLists()
   }
 
   if (loadedList)
-    std::cout << "\nYou have also currently loaded the " << (*loadedList).name << '\n';
+    std::cout << "\nYou have also currently loaded the " << (*loadedList).getName() << '\n';
 }
 
 bool TodoApplication::loadList(int listIndex)
@@ -197,9 +196,10 @@ void TodoApplication::addItemToLoadedList(const std::string& item)
     std::cout << "Failed to add item.\n";
 }
 
-bool TodoApplication::deleteItemFromLoadedList(int listIndex)
+void TodoApplication::deleteItemFromLoadedList(int listIndex)
 {
-  return true;
+  if (!loadedList->deleteItem(listIndex))
+    std::cout << "Failed to delete item.\n";
 }
 
 bool TodoApplication::createList(const std::string& name)

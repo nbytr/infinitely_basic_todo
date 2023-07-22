@@ -1,11 +1,11 @@
 #include "TodoList.hpp"
 #include <stdexcept>
 
-TodoList::TodoList(const std::string& fileName)
-  : name {fileName}, items {}
+TodoList::TodoList(std::filesystem::path fp)
+  : filePath {fp}, items {}
 {
   file =
-    std::fstream {fileName,
+    std::fstream { filePath,
       std::ios_base::in | std::ios_base::out
         | std::ios_base::app };
 
@@ -37,6 +37,33 @@ bool TodoList::addItem(const std::string& item)
   file.seekg(0, std::ios::end);
 
   file << item << '\n';
+
+  return bool(file);
+}
+
+bool TodoList::deleteItem(int listIndex)
+{
+  if (listIndex < 0 || listIndex >= items.size()) return false;
+
+  items.erase(items.begin() + (listIndex));
+
+  std::cout << "Items size: " << items.size() << '\n';
+
+  // re-open the file in truncated mode to delete everything
+  // and write from the beginning
+
+  file = std::fstream {filePath,
+    std::ios_base::in | std::ios_base::out
+    | std::ios::trunc };
+
+  if (items.size() == 0)
+    std::filesystem::remove(filePath);
+
+  for (auto item : items)
+  {
+    std::cout << "writing " << item <<'\n';
+    file << item << '\n';
+  }
 
   return bool(file);
 }

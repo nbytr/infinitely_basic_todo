@@ -1,6 +1,7 @@
 #ifndef TODO_LIST_HPP
 #define TODO_LIST_HPP
 
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -12,15 +13,20 @@ using ItemList = std::vector<std::string>;
 class TodoList
 {
 public:
-  std::string name;
-
-  TodoList(const std::string& fileName);
+  TodoList(std::filesystem::path fP);
 
   ItemList& retrieveItems();
 
   bool addItem(const std::string& item);
+  bool deleteItem(int listIndex);
+
+  std::string getName() const
+  {
+    return filePath.stem();
+  }
 
 private:
+  std::filesystem::path filePath;
   std::fstream file;
   ItemList items;
 };

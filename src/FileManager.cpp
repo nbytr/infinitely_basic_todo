@@ -94,7 +94,7 @@ std::unique_ptr<TodoList> FileManager::openTodoList(int listIndex)
     return std::unique_ptr<TodoList> {nullptr};
 
   std::unique_ptr<TodoList> tdList = std::make_unique<TodoList>(
-      dataPath + obtainAllTodoListNames()[listIndex] + ".lst"
+      std::filesystem::path(dataPath + obtainAllTodoListNames()[listIndex] + ".lst")
   );
 
   return tdList;
