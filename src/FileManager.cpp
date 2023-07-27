@@ -4,13 +4,14 @@
 #include <iterator>
 #include <memory>
 
-FileManager::FileManager()
+std::string calculateDataPath()
 {
+  std::string dp;
   // Detect the OS and set the data location path accordingly.
 #ifdef __unix__
 #include <cstdlib>
   std::string username = getenv("USER");
-  dataPath = "/home/" + username + "/.local/share/.infinitelybasictodo/";
+  dp = "/home/" + username + "/.local/share/.infinitelybasictodo/";
 #elif defined(_WIN32) || defined(WIN32)
 #include <Windows.h>
 #include <Lmcons.h>
@@ -19,11 +20,28 @@ FileManager::FileManager()
   GetUserName(username, &username_len);
   std::string uname = username;
 
-  dataPath = "C:/Users/" + uname + "/.infinitelybasictodo/";
+  dp = "C:/Users/" + uname + "/.infinitelybasictodo/";
 #else
 #error Unrecognised operating system
 #endif
+
+  return dp;
+
 }
+FileManager::FileManager()
+  : dataPath {calculateDataPath()}, cachedTodoListNames {NameList{},
+    std::function<NameList ()>( [&] () -> NameList {
+    auto initialFile = std::filesystem::directory_iterator(dataPath);
+
+    NameList fileEntries;
+    for (const auto& fileEntry : initialFile)
+    {
+      if (fileEntry.path().extension() == ".lst")
+        fileEntries.push_back(fileEntry.path().stem());
+    }
+
+    return std::move(fileEntries);
+  })} {}
 
 bool FileManager::isFirstLaunch() const
 {
@@ -50,21 +68,7 @@ bool FileManager::doesTodoListExist(int listIndex)
 
 NameList& FileManager::obtainAllTodoListNames()
 {
-  if (cacheValid) return cachedTodoListNames;
-
-  auto initialFile = std::filesystem::directory_iterator(dataPath);
-
-  NameList fileEntries;
-  for (const auto& fileEntry : initialFile)
-  {
-    if (fileEntry.path().extension() == ".lst")
-      fileEntries.push_back(fileEntry.path().stem());
-  }
-
-  cachedTodoListNames = std::move(fileEntries);
-  cacheValid = true;
-
-  return cachedTodoListNames;
+  return cachedTodoListNames.getRef();
 }
 
 bool FileManager::createList(const std::string& name)
@@ -73,7 +77,7 @@ bool FileManager::createList(const std::string& name)
 
   std::ofstream f {dataPath + name + ".lst"};
   if (f)
-    cacheValid = false;
+    cachedTodoListNames.invalidateCache();
   return bool(f);
 }
 
@@ -84,7 +88,7 @@ bool FileManager::deleteList(int listIndex)
   NameList lst = obtainAllTodoListNames();
   bool r = std::filesystem::remove(dataPath + lst[listIndex] + ".lst");
   if (r)
-    cacheValid = false;
+    cachedTodoListNames.invalidateCache();
   return r;
 }
 

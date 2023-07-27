@@ -9,6 +9,8 @@
 #include <functional>
 #include <sstream>
 
+#include "utility/CachedResult.hpp"
+
 #include "TodoList.hpp"
 
 using NameList = std::vector<std::string>;
@@ -32,7 +34,8 @@ private:
   // Where user data is stored, set in constructor based on OS.
   std::string dataPath;
 
-  NameList cachedTodoListNames;
+  CachedResult<NameList> cachedTodoListNames;
+
   bool cacheValid = false;
 };
 
